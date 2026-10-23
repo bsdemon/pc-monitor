@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PC Monitor</title>
+<style>
+:root{color-scheme:dark;--bg:#101315;--panel:#191d20;--line:#303639;--muted:#939d9f;--text:#eef2ed;--cpu:#c6ed8b;--gpu:#aabfff;--ram:#efc895}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:15px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif}main{max-width:1260px;margin:auto;padding:48px 32px}header{display:flex;justify-content:space-between;gap:20px;align-items:center;border-bottom:1px solid var(--line);padding-bottom:26px}.eyebrow{font:11px ui-monospace,monospace;letter-spacing:2px;color:var(--cpu);text-transform:uppercase}h1{font-size:32px;letter-spacing:-1.2px;margin:7px 0 0;font-weight:550}.status{display:flex;gap:9px;align-items:center;font:12px ui-monospace,monospace;color:var(--muted)}.dot{height:7px;width:7px;border-radius:50%;background:#e1b760}.status[data-state=live] .dot{background:var(--cpu);box-shadow:0 0 12px #c6ed8b55}.status[data-state=offline] .dot{background:#f28f8f}.intro{display:flex;justify-content:space-between;align-items:baseline;margin:32px 0 18px}.intro h2{font-size:16px;font-weight:500;margin:0}.intro span{color:var(--muted);font:12px ui-monospace,monospace}.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px}.card{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:25px;min-width:0}.card.cpu{--accent:var(--cpu)}.card.gpu{--accent:var(--gpu)}.card.ram{--accent:var(--ram)}.cardtop{display:flex;justify-content:space-between;align-items:center}.chip{font:12px ui-monospace,monospace;color:var(--accent);border:1px solid var(--line);border-radius:7px;padding:4px 9px}.index{font:11px ui-monospace,monospace;color:#687477}.device{color:var(--muted);font-size:12px;margin:18px 0 23px;min-height:36px;overflow-wrap:anywhere}.value{font-size:65px;font-weight:400;letter-spacing:-4px;font-variant-numeric:tabular-nums;line-height:1.1}.value small{font-size:23px;color:var(--muted);letter-spacing:0;margin-left:5px}.caption{font-size:12px;color:var(--muted);margin:10px 0 19px}.track{height:5px;border-radius:8px;background:#303639;overflow:hidden;margin-bottom:27px}.fill{height:100%;background:var(--accent);width:0;transition:width .45s;border-radius:8px}.row{display:flex;justify-content:space-between;gap:10px;border-top:1px solid var(--line);padding:13px 0;font-size:12px}.row span{color:var(--muted)}.row b{font-weight:450;font-variant-numeric:tabular-nums;text-align:right}.row:last-child{padding-bottom:0}.notice{margin-top:18px;padding:13px 17px;background:#302922;border:1px solid #66503a;border-radius:10px;color:#eed1a4;font-size:12px;overflow-wrap:anywhere}.notice[hidden]{display:none}footer{display:flex;justify-content:space-between;gap:16px;color:var(--muted);font:11px ui-monospace,monospace;margin-top:26px}.endpoint{color:var(--muted);text-decoration:none}.endpoint:hover{color:var(--text)}@media(max-width:900px){.grid{grid-template-columns:1fr}.device{min-height:0}.value{font-size:55px}.card{padding:22px}main{padding:28px 18px}.intro{gap:15px}.intro span{text-align:right}footer{flex-wrap:wrap}h1{font-size:27px}}@media(prefers-reduced-motion:reduce){.fill{transition:none}}
+</style>
+</head>
+<body>
+<main>
+<header><div><div class="eyebrow">Local hardware telemetry</div><h1>PC Monitor<span style="color:var(--cpu)">.</span></h1></div><div class="status" id="status" role="status"><i class="dot"></i><span id="status-text">Connecting</span></div></header>
+<div class="intro"><h2>System overview</h2><span id="computer">Waiting for your PC</span></div>
+<div class="grid">
+<section class="card cpu"><div class="cardtop"><span class="chip">CPU</span><span class="index">01 / PROCESSOR</span></div><div class="device" id="cpu-name">Waiting for sensors</div><div class="value"><span id="cpu-load">—</span><small>%</small></div><div class="caption">Processor utilization</div><div class="track"><div class="fill" id="cpu-bar"></div></div><div class="row"><span>Temperature</span><b id="cpu-temp">—</b></div><div class="row"><span>Package power</span><b id="cpu-power">—</b></div><div class="row"><span>Average clock</span><b id="cpu-clock">—</b></div></section>
+<section class="card gpu"><div class="cardtop"><span class="chip">GPU</span><span class="index">02 / GRAPHICS</span></div><div class="device" id="gpu-name">Waiting for sensors</div><div class="value"><span id="gpu-load">—</span><small>%</small></div><div class="caption">GPU core utilization</div><div class="track"><div class="fill" id="gpu-bar"></div></div><div class="row"><span>Temperature / Hot spot</span><b id="gpu-temp">—</b></div><div class="row"><span>Package power</span><b id="gpu-power">—</b></div><div class="row"><span>VRAM used / total</span><b id="gpu-vram">—</b></div></section>
+<section class="card ram"><div class="cardtop"><span class="chip">RAM</span><span class="index">03 / MEMORY</span></div><div class="device">System memory</div><div class="value"><span id="ram-load">—</span><small>%</small></div><div class="caption">Memory utilization</div><div class="track"><div class="fill" id="ram-bar"></div></div><div class="row"><span>Used / total</span><b id="ram-used">—</b></div><div class="row"><span>Available</span><b id="ram-free">—</b></div><div class="row"><span>DIMM temperatures</span><b id="ram-temp">—</b></div></section>
+</div>
+<div class="notice" id="notice" role="status" hidden></div>
+<footer><span>REFRESH / 1 SECOND · <span id="read-time">—</span></span><span id="updated">Waiting for first sample</span><a class="endpoint" href="/api/metrics">JSON API ↗</a></footer>
+</main>
+<script>
+const el=id=>document.getElementById(id);
+const valid=v=>typeof v==='number'&&Number.isFinite(v);
+const num=(v,d=1)=>valid(v)?v.toLocaleString('en-US',{maximumFractionDigits:d}):'N/A';
+const unit=(v,u,d=1)=>valid(v)?num(v,d)+u:'N/A';
+const gib=v=>valid(v)?v/1073741824:null;
+let latest=null,lastSuccess=0,lastStarting=false;
+function status(state,text){el('status').dataset.state=state;el('status-text').textContent=text;}
+function put(id,text){el(id).textContent=text;}
+function notice(text){el('notice').hidden=!text;put('notice',text||'');}
+function render(m){
+  put('computer',m.computer_id);put('cpu-name',m.cpu.name||'CPU sensors unavailable');put('gpu-name',m.gpu.name||'GPU sensors unavailable');
+  for(const key of ['cpu','gpu','ram']){const v=m[key].utilization_percent;put(key+'-load',num(v));el(key+'-bar').style.width=(valid(v)?Math.min(100,Math.max(0,v)):0)+'%';}
+  put('cpu-temp',unit(m.cpu.temperature_celsius,' °C'));put('cpu-power',unit(m.cpu.power_watts,' W'));put('cpu-clock',unit(m.cpu.average_clock_mhz,' MHz',0));
+  put('gpu-temp',unit(m.gpu.temperature_celsius,' °C')+' / '+unit(m.gpu.hot_spot_celsius,' °C'));put('gpu-power',unit(m.gpu.power_watts,' W'));put('gpu-vram',num(gib(m.gpu.vram_used_bytes),2)+' / '+unit(gib(m.gpu.vram_total_bytes),' GiB',2));
+  put('ram-used',num(gib(m.ram.used_bytes),2)+' / '+unit(gib(m.ram.total_bytes),' GiB',2));
+  put('ram-free',unit(gib(m.ram.available_bytes),' GiB',2));
+  put('ram-temp',m.ram.temperatures_celsius.map(s=>s.name+': '+unit(s.value,' °C')).join(' / ')||'N/A');
+  put('read-time',unit(m.read_time_ms,' ms read',0));put('updated','UPDATED '+new Date(m.measured_at).toLocaleTimeString('en-GB'));
+}
+function updateStatus(){
+  if(!latest){status(lastStarting?'starting':'offline',lastStarting?'Initializing sensors':'Disconnected');return;}
+  if(performance.now()-lastSuccess>5000){status('offline','Disconnected');notice('Cannot reach the PC agent. Reconnecting automatically.');return;}
+  if(latest.stale||Date.now()-Date.parse(latest.measured_at)>5000){status('stale','Stale data');notice(latest.collection_error||'No fresh measurement in the last 5 seconds.');return;}
+  status('live',latest.hardware_status==='ok'?'Live':'Live · limited sensors');notice(latest.hardware_error);
+}
+async function poll(){
+  try{
+    const response=await fetch('/api/metrics',{cache:'no-store',signal:AbortSignal.timeout(3000)});
+    if(response.status===503){lastStarting=true;const body=await response.json();notice(body.error||'Starting hardware sensors. The first sample will appear shortly.');}
+    else{if(!response.ok)throw new Error('HTTP '+response.status);const m=await response.json();render(m);latest=m;lastSuccess=performance.now();lastStarting=false;}
+  }catch(error){lastStarting=false;if(!latest)notice('Cannot reach the PC agent. Reconnecting automatically.');}
+  updateStatus();setTimeout(poll,1000);
+}
+setInterval(updateStatus,1000);poll();
+</script>
+</body>
+</html>

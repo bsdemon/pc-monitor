@@ -5,10 +5,10 @@
 Monitor a Windows PC and display its metrics on an ESP32 with a display over the local network.
 
 - Computer: Windows 11, Ryzen 7 5700X.
-- Current GPU: reported as ATI RX6700X; the exact model remains to be confirmed.
+- Current GPU: AMD Radeon RX 6700 XT, confirmed by Windows diagnostics.
 - Planned GPU: Radeon RX 9070 XT.
-- Board: reported by the user as ESP32-S31 Korvo-1 with a display.
-- Display resolution, controller, and wiring remain to be confirmed.
+- Main board: ESP32-S31-Korvo-1 V1.1, confirmed by the user.
+- Display board: ESP32-S3-LCD-EV-Board-SUB3 V1.3, confirmed by the user. Verify the matching BSP display settings before firmware implementation.
 
 ## First-version architecture
 
@@ -56,8 +56,10 @@ The agent and HTTP server run on the Windows PC itself. The agent implementation
    - An MQTT broker on the Windows PC if more displays or other consumers are needed.
    - Preserve the common data format when adding MQTT.
    - Charts, additional screens, and settings after a working prototype.
-   - A database and separate web interface are outside the scope of the first version.
+   - A browser dashboard served by the Python agent has been added to the scope at the user’s request. A database remains outside the scope of the first version.
 
-## Next step
+## Current status and next step
 
-Run the Python diagnostic tool on the Windows PC from an elevated PowerShell session, then inspect the report to establish available sensors and define metric mappings. The initial diagnostic tool is implemented; actual Windows hardware validation is pending.
+Console diagnostics and the Python HTTP server with a built-in browser dashboard are implemented. The shared `/api/metrics` endpoint exposes cached measurements for the browser and future ESP32 client. The user has confirmed CPU/GPU/RAM readings on Windows with administrator privileges and PawnIO. The new HTTP/dashboard integration still needs validation on that Windows machine.
+
+Next: validate the dashboard on Windows, then implement ESP32 Wi-Fi/HTTP reception and the LVGL display using the confirmed board and display revisions.

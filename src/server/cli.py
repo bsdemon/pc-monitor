@@ -6,8 +6,8 @@ import math
 import time
 from pathlib import Path
 
-from src.diagnostics import Collector
-from src.display import format_summary
+from src.server.diagnostics import Collector
+from src.server.display import format_summary
 
 
 def positive_seconds(value: str) -> float:
@@ -19,12 +19,20 @@ def positive_seconds(value: str) -> float:
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Collect PC metrics and sensor diagnostics")
-    parser.add_argument("command", choices=["diagnose"])
+    parser.add_argument("command", choices=["diagnose", "serve"])
     parser.add_argument("--output", type=Path, help="Save the latest full diagnostic JSON to this file")
     parser.add_argument("--watch", action="store_true", help="Keep sampling until Ctrl+C")
     parser.add_argument("--interval", type=positive_seconds, default=1.0,
                         help="Sampling interval in seconds for watch mode (default: 1)")
+    parser.add_argument("--host", default="127.0.0.1", help="HTTP bind address (default: 127.0.0.1)")
+    parser.add_argument("--port", type=int, default=8080, help="HTTP port (default: 8080)")
     args = parser.parse_args()
+    if not 1 <= args.port <= 65535:
+        parser.error("Port must be between 1 and 65535")
+    if args.command == "serve":
+        from src.server.web import serve
+        serve(args.host, args.port, args.interval)
+        return
     collector = Collector()
     print("Initializing sensors...", flush=True)
     try:

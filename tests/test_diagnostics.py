@@ -2,7 +2,7 @@ import unittest
 from unittest.mock import patch
 from urllib.error import URLError
 
-from src.diagnostics import collect, sensor_inventory
+from src.server.diagnostics import collect, sensor_inventory
 
 
 class DiagnosticsTests(unittest.TestCase):
@@ -18,8 +18,8 @@ class DiagnosticsTests(unittest.TestCase):
         self.assertEqual(sensors[0]["value"], "45,0 °C")
         self.assertIsNone(sensors[1]["value"])
 
-    @patch("src.diagnostics.psutil.cpu_percent", return_value=12.5)
-    @patch("src.diagnostics.urlopen", side_effect=URLError("connection refused"))
+    @patch("src.server.diagnostics.psutil.cpu_percent", return_value=12.5)
+    @patch("src.server.diagnostics.urlopen", side_effect=URLError("connection refused"))
     def test_missing_provider_preserves_baseline_metrics(self, _url, _cpu):
         report = collect("http://127.0.0.1:8085")
         self.assertEqual(report["cpu"]["utilization_percent"], 12.5)

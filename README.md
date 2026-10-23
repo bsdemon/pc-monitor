@@ -1,7 +1,7 @@
 # PC Monitor
 
 Python diagnostics for a Windows PC that will supply metrics to an ESP32 display.
-The current milestone is sensor discovery; the agent HTTP endpoint and ESP32 firmware are not implemented yet.
+The Windows agent provides console diagnostics, a browser dashboard, and a shared HTTP metrics API. ESP32 firmware is not implemented yet.
 
 ## Setup on Windows
 
@@ -34,11 +34,16 @@ The report includes a one-second CPU utilization sample, RAM in bytes, a UTC col
 
 The hardware provider reports `ok`, `empty`, or `unavailable` and provides an error when initialization or collection fails. `ok` means some sensors were enumerated, not that every expected metric is available. Baseline metrics remain available when the hardware library fails. Measurements are sampled sequentially rather than atomically.
 
-This diagnostic schema is not the future `/api/metrics` contract. An actual Windows report is needed before mapping CPU temperature, GPU temperature/utilization, and VRAM. Windows hardware access has not been validated from the development environment. No sensor values or fan settings are modified.
+This diagnostic schema is not the future `/api/metrics` contract. Mappings are based on user-provided Windows readings for a Ryzen 7 5700X and Radeon RX 6700 XT, with PawnIO installed and an elevated terminal. The development environment cannot independently validate Windows hardware access. No sensor values or fan settings are modified.
 
 ## Source layout
 
-Python files live directly in `src/`: `cli.py` provides the command line and `diagnostics.py` collects metrics, and `display.py` formats the console summary.
+The source tree separates the Windows agent from the display firmware:
+
+- `src/server/`: Python sensor collection, console output, and future HTTP server.
+- `src/esp32/`: ESP32 display firmware (not implemented yet).
+
+The `pc-monitor` command remains unchanged. Its entry point is `src.server.cli:main`.
 
 See [PLAN.md](PLAN.md) for milestones and [AGENTS.md](AGENTS.md) for contributor instructions.
 
@@ -53,3 +58,27 @@ uv run pc-monitor diagnose --watch
 The default interval is one second. Use `--interval 2` to change it and Ctrl+C to stop. With `--output diagnostics.json`, the file is overwritten with the latest full report on each update.
 
 The hardware library is initialized and primed once, remains open throughout the session, and closes on exit. An initial sampling window precedes the first report. Subsequent reads do not deliberately sleep inside sensor collection. The console shows initialization time separately from each collection duration in milliseconds. Scheduling subtracts collection and display time from the requested interval; if an update exceeds the interval, a message reports the overrun. One-second operation must be confirmed on the target Windows hardware.
+
+## Browser dashboard and HTTP API
+
+Run from an elevated Windows PowerShell session:
+
+```powershell
+uv run pc-monitor serve
+```
+
+Open **http://localhost:8080**. Python serves the ready HTML page with its embedded styles and script; no frontend build, external assets, or separate frontend server is required. The browser polls the metrics endpoint every second without reloading the page.
+
+For ESP32 or another device on your home network:
+
+```powershell
+uv run pc-monitor serve --host 0.0.0.0
+```
+
+Use `http://<PC-LAN-IP>:8080` for the dashboard and `http://<PC-LAN-IP>:8080/api/metrics` for JSON. Allow TCP port 8080 on the Windows Firewall private network profile if needed. The default bind address is loopback; LAN mode is intended for a trusted local network and has no authentication. Do not forward this port to the internet.
+
+`--port 8081` changes the port and `--interval 2` changes the sensor sampling interval. The browser still polls every second. Stop with Ctrl+C. Run one agent instance rather than keeping a separate diagnostic watcher open.
+
+The collector opens once on its own thread and publishes the latest snapshot. HTTP requests read this cached snapshot and never trigger hardware access. While initializing, `/api/metrics` returns HTTP 503. A snapshot includes schema version 1, computer ID, UTC timestamp, CPU/GPU names and metrics, RAM, hardware availability, read duration, and a stale flag. Units are explicit in field names; VRAM is represented in bytes. Unavailable numeric values are `null`. The first detected CPU/GPU are selected. The browser displays N/A for absent sensors and marks data stale after five seconds without a fresh measurement.
+
+The web interface is in `src/server/templates/dashboard.html`; HTTP handling is in `src/server/web.py`, and metric mapping is in `src/server/metrics.py`. The HTML is included in the Python wheel.
