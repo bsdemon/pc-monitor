@@ -82,3 +82,37 @@ Use `http://<PC-LAN-IP>:8080` for the dashboard and `http://<PC-LAN-IP>:8080/api
 The collector opens once on its own thread and publishes the latest snapshot. HTTP requests read this cached snapshot and never trigger hardware access. While initializing, `/api/metrics` returns HTTP 503. A snapshot includes schema version 1, computer ID, UTC timestamp, CPU/GPU names and metrics, RAM, hardware availability, read duration, and a stale flag. Units are explicit in field names; VRAM is represented in bytes. Unavailable numeric values are `null`. The first detected CPU/GPU are selected. The browser displays N/A for absent sensors and marks data stale after five seconds without a fresh measurement.
 
 The web interface is in `src/server/templates/dashboard.html`; HTTP handling is in `src/server/web.py`, and metric mapping is in `src/server/metrics.py`. The HTML is included in the Python wheel.
+
+## Windows launcher
+
+Double-click `start.cmd` in File Explorer, or run it from PowerShell:
+
+```powershell
+.\start.cmd
+```
+
+This wrapper invokes `start.ps1` with an execution-policy override for that process only; it does not change the system policy. Accept the UAC prompt to allow hardware access. Both launcher files must stay in the project directory.
+
+Alternatively, when script execution is already allowed, run the PowerShell launcher directly:
+
+```powershell
+.\start.ps1
+```
+
+The launcher requests administrator privileges through UAC when needed, runs from its own project directory, and starts the dashboard and metrics API on port 8080 with LAN access enabled. Open **http://localhost:8080**; the ESP32 can use `http://<PC-LAN-IP>:8080/api/metrics`. Keep the terminal open and press Ctrl+C to stop. Stop any previous server before launching another instance.
+
+uv must already be installed and available on PATH. `uv run --locked` prepares or updates the Windows `.venv` using the committed lockfile; no manual activation is required. PawnIO is still required for the CPU sensor access verified on this machine. The launcher does not install drivers, add firewall rules, or register automatic startup.
+
+If PowerShell blocks execution of the local script, run it with a policy override for this process only:
+
+```powershell
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\start.ps1
+```
+
+For loopback-only access or a different port:
+
+```powershell
+.\start.ps1 -BindAddress 127.0.0.1 -Port 8081
+```
+
+The launcher targets Windows PowerShell 5.1 or newer. Its UAC and sensor behavior must be checked on Windows; they cannot be exercised in the Linux development environment.
