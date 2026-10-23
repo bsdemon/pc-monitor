@@ -60,6 +60,6 @@ The agent and HTTP server run on the Windows PC itself. The agent implementation
 
 ## Current status and next step
 
-Console diagnostics and the Python HTTP server with a built-in browser dashboard are implemented. The shared `/api/metrics` endpoint exposes cached measurements for the browser and future ESP32 client. The user has confirmed CPU/GPU/RAM readings on Windows with administrator privileges and PawnIO. The new HTTP/dashboard integration still needs validation on that Windows machine.
+Console diagnostics and the Python HTTP server with a built-in browser dashboard are implemented. The shared `/api/metrics` endpoint exposes cached measurements for the browser and future ESP32 client. The user has confirmed CPU/GPU/RAM readings on Windows with administrator privileges and PawnIO. The user has confirmed the HTTP dashboard works on Windows.
 
-Next: validate the dashboard on Windows, then implement ESP32 Wi-Fi/HTTP reception and the LVGL display using the confirmed board and display revisions.
+Native ESP-IDF/LVGL firmware is implemented in `src/esp32/`, including Wi-Fi/HTTP reception, NVS settings, touch-screen Wi-Fi settings with network scanning and a keyboard, Overview/Charts/detail views, and touch navigation. Windows ESP-IDF v6.1 compilation for the esp32s31 preview target has succeeded. Next: flash with user authorization and validate the display, touch, setup flow, Wi-Fi recovery, and live metrics on the actual board.

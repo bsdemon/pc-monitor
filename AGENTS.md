@@ -17,6 +17,7 @@
 
 - The main endpoint is `/api/metrics`; the planned port is `8080`.
 - The payload includes a schema version, computer identifier, measurement timestamp, and GPU name.
+- Network telemetry includes PC upload/download rates and ICMP ping to google.com; network probes must not block sensor sampling or HTTP requests.
 - Core metrics are CPU and GPU utilization and temperature, used and total RAM, and used and total VRAM.
 - Define units unambiguously. Represent unavailable values as `null`, not zero.
 - Detect the GPU automatically and preserve a common payload format when it is replaced.
@@ -30,7 +31,7 @@
 
 ## Development and validation
 
-- Current code is in `src/server/`; ESP32 firmware belongs in `src/esp32/`. The server provides diagnostics, a browser dashboard, and cached `/api/metrics` data. User-provided Windows diagnostics confirm core sensor availability.
+- Python code is in `src/server/`; native ESP-IDF/LVGL firmware and its browser design reference are in `src/esp32/`. The chip target is `esp32s31`, not `esp32s3`. The installed ESP-IDF v6.1 requires `--preview` for this target. Firmware settings can be provisioned from the ignored `src/esp32/.env` during build, or edited on the touch screen, then saved in NVS. Keep generated credential headers and firmware artifacts private and excluded from Git/Python packaging; do not add a setup AP or settings web server. Do not embed Wi-Fi secrets in source. The server provides diagnostics, a browser dashboard, and cached `/api/metrics` data. User-provided Windows diagnostics confirm core sensor availability.
 - Use psutil for baseline metrics and the HardwareMonitor Python package for direct sensor discovery through its bundled LibreHardwareMonitor library. Do not require a separate monitoring application or HTTP sensor server. Validate available sensors on the actual Windows PC before defining mappings.
 - When adding a project, document exact build, run, and relevant validation commands.
 - Run available checks appropriate to each change. Distinguish successful compilation from validation on actual Windows hardware.

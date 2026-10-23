@@ -19,3 +19,5 @@ build-backend = "uv_build"
 [tool.uv.build-backend]
 module-name = "src"
 module-root = ""
+source-exclude = ["src/esp32/build/**", "src/esp32/managed_components/**", "src/esp32/sdkconfig", "src/esp32/sdkconfig.old", "**/.env", "**/.env.*"]
+wheel-exclude = ["src/esp32/build/**", "src/esp32/managed_components/**", "src/esp32/sdkconfig", "src/esp32/sdkconfig.old", "**/.env", "**/.env.*"]

@@ -1,0 +1,6 @@
+cmake_minimum_required(VERSION 3.16)
+include($ENV{IDF_PATH}/tools/cmake/project.cmake)
+project(pc_monitor_display)
+if(NOT IDF_TARGET STREQUAL "esp32s31")
+    message(FATAL_ERROR "This firmware requires the esp32s31 target, not esp32s3.")
+endif()

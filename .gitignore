@@ -5,3 +5,15 @@ __pycache__/
 dist/
 *.egg-info/
 diagnostics*.json
+
+# ESP-IDF generated artifacts and local configuration
+/src/esp32/build/
+/src/esp32/managed_components/
+/src/esp32/sdkconfig
+/src/esp32/sdkconfig.old
+/src/esp32/.idf-build-env
+
+# Private local settings
+.env
+.env.*
+!.env.example

@@ -1,7 +1,7 @@
 # PC Monitor
 
 Python diagnostics for a Windows PC that will supply metrics to an ESP32 display.
-The Windows agent provides console diagnostics, a browser dashboard, and a shared HTTP metrics API. ESP32 firmware is not implemented yet.
+The Windows agent provides console diagnostics, a browser dashboard, and a shared HTTP metrics API. ESP32 firmware and setup instructions are in `src/esp32/`.
 
 ## Setup on Windows
 
@@ -18,7 +18,7 @@ No separate LibreHardwareMonitor application, web server, or open sensor port is
 
 Administrator privileges do not replace hardware drivers. The package documents a PawnIO driver requirement for some system sensors. This project does not install drivers or change Windows security settings. Without the required driver or hardware support, some temperatures may be absent even when CPU utilization, RAM, and GPU sensors are available.
 
-The console shows CPU utilization, temperature, power and average clock; GPU core utilization, temperature, hot spot and power; used/total VRAM; RAM utilization and used/total RAM in GiB; and available DIMM temperatures. CPU and RAM utilization come from psutil; GPU utilization comes from the GPU Core load sensor, with unavailable readings shown as N/A. Missing readings display `N/A`. The first detected CPU and GPU are selected.
+The console shows CPU utilization, temperature, power and average clock; GPU core utilization, temperature, hot spot and power; upload/download speed and Google ping; RAM utilization and used/total RAM in GiB; and available DIMM temperatures. CPU and RAM utilization come from psutil; GPU utilization comes from the GPU Core load sensor, with unavailable readings shown as N/A. Missing readings display `N/A`. The first detected CPU and GPU are selected.
 
 To print this summary and also save the full diagnostic JSON:
 
@@ -41,7 +41,7 @@ This diagnostic schema is not the future `/api/metrics` contract. Mappings are b
 The source tree separates the Windows agent from the display firmware:
 
 - `src/server/`: Python sensor collection, console output, and future HTTP server.
-- `src/esp32/`: ESP32 display firmware (not implemented yet).
+- `src/esp32/`: ESP-IDF/LVGL display firmware, touch Wi-Fi settings, and browser design reference.
 
 The `pc-monitor` command remains unchanged. Its entry point is `src.server.cli:main`.
 
@@ -120,3 +120,17 @@ The launcher targets Windows PowerShell 5.1 or newer. Its UAC and sensor behavio
 ## ESP32 screen preview
 
 Open **http://localhost:8080/display-preview** to review the 800 × 480 screen design with live metrics, or explicitly simulated demo/stale states. Overview and Charts switch the home view; tapping CPU/GPU/RAM opens details with a Back button. Charts keep the last two minutes while the page is open. This is a browser mockup for the future LVGL firmware.
+
+## ESP32 firmware
+
+The native firmware is in [src/esp32](src/esp32/README.md). It targets ESP32-S31-Korvo-1 V1.1 with the SUB3 V1.3 display and includes Overview, Charts, device details, and touch navigation. Wi-Fi and PC URL are configured directly on the touch screen with a network list and keyboard; settings persist in NVS. The ESP32 does not create a setup network or serve a settings web page. See the firmware README for build, flash, setup, and hardware validation instructions.
+
+## Network telemetry
+
+The Windows agent measures upload/download from byte-counter differences and elapsed monotonic time. `/api/metrics` adds `network.upload_bytes_per_second`, `download_bytes_per_second`, `ping_ms`, `ping_target`, and the ping timestamp. Interfaces are active non-loopback adapters with IP addresses. By default their traffic is summed; virtual/VPN adapters can count overlapping traffic. To select one adapter, set `PC_MONITOR_INTERFACE` to its exact name before running the server (for example `$env:PC_MONITOR_INTERFACE = "Ethernet 2"` in an elevated PowerShell session).
+
+Rates describe current PC traffic, including LAN traffic; they are not an internet bandwidth test. Displays convert bytes/second to decimal Mbps (8 bits per byte). New/disconnected interfaces and counter resets do not create rate spikes. Missing measurements are null, while a measured idle rate is zero.
+
+A background worker pings `google.com` about once per second using the system ICMP ping command. It does not block sensor collection or HTTP requests. Timeouts, missing ping utility, or unrecognized output produce null latency. Results older than five seconds are unavailable. `ping_upper_bound` marks replies reported as less than the given milliseconds. Ping measures the Windows PC's route to Google, rather than the ESP32 Wi-Fi round trip. ICMP may be blocked even when other internet services work.
+
+The ESP32 overview replaces VRAM with Upload and Download. The third Network page plots Upload, Download, and Google ping over two minutes. VRAM fields remain in the JSON for compatibility, but are no longer displayed. The browser dashboard and `/display-preview` show the same new network readings.

@@ -7,6 +7,8 @@ from datetime import datetime, timezone
 
 import psutil
 
+from src.server.network import NetworkMonitor
+
 
 UNITS = {
     "Temperature": "celsius", "Load": "percent", "Control": "percent",
@@ -22,8 +24,10 @@ class Collector:
     def __init__(self):
         self.computer = None
         self.error = None
+        self.network = NetworkMonitor()
 
     def open(self):
+        self.network.open()
         psutil.cpu_percent(interval=None)
         try:
             if platform.system() != "Windows":
@@ -39,15 +43,20 @@ class Collector:
             read_hardware(self.computer)
         except Exception as exc:
             self.error = f"Cannot initialize hardware sensors: {exc}"
-            self.close()
+            computer, self.computer = self.computer, None
+            if computer is not None:
+                computer.Close()
 
     def close(self):
+        self.network.close()
         computer, self.computer = self.computer, None
         if computer is not None:
             computer.Close()
 
     def collect(self) -> dict:
-        return collect(self.computer, self.error)
+        report = collect(self.computer, self.error)
+        report["network"] = self.network.sample()
+        return report
 
 
 def read_hardware(computer) -> list[dict]:

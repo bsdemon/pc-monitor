@@ -17,8 +17,6 @@ def format_summary(report: dict) -> str:
         text = f"{value:.{decimals}f}".rstrip("0").rstrip(".") if decimals else f"{value:.0f}"
         return text + unit
 
-    used = reading(gpu, "SmallData", "GPU Memory Used")
-    total = reading(gpu, "SmallData", "GPU Memory Total")
     ram_temperatures = [
         number(s["value"], "°C") for s in sensors
         if s["hardware_type"] == "Memory" and s["type"] == "Temperature"
@@ -33,7 +31,11 @@ def format_summary(report: dict) -> str:
         ("GPU temperature", number(reading(gpu, "Temperature", "GPU Core"), "°C")),
         ("GPU Hot Spot", number(reading(gpu, "Temperature", "GPU Hot Spot"), "°C")),
         ("GPU power", number(reading(gpu, "Power", "GPU Package"), " W")),
-        ("VRAM used / total", f"{number(used, decimals=0)} / {number(total, decimals=0)} MiB"),
+        ("Upload", number(report.get("network", {}).get("upload_bytes_per_second") * 8 / 1e6, " Mbps")
+         if report.get("network", {}).get("upload_bytes_per_second") is not None else ("Upload", "N/A")),
+        ("Download", number(report.get("network", {}).get("download_bytes_per_second") * 8 / 1e6, " Mbps")
+         if report.get("network", {}).get("download_bytes_per_second") is not None else ("Download", "N/A")),
+        ("Ping / google.com", number(report.get("network", {}).get("ping_ms"), " ms")),
         ("RAM utilization", number(report["ram"]["utilization_percent"], "%")),
         ("RAM used / total", f"{number(report['ram']['used_bytes'] / 1024**3)} / "
          f"{number(report['ram']['total_bytes'] / 1024**3)} GiB"),

@@ -42,6 +42,7 @@ def metrics_from_report(report: dict) -> dict:
             "core_clock_mhz": reading(gpu, "Clock", "GPU Core"),
             "memory_clock_mhz": reading(gpu, "Clock", "GPU Memory"),
             "fan_rpm": reading(gpu, "Fan", "GPU Fan"),
+            "core_voltage_volts": reading(gpu, "Voltage", "GPU Core"),
             "vram_used_bytes": vram_bytes("GPU Memory Used"),
             "vram_total_bytes": vram_bytes("GPU Memory Total"),
         },
@@ -56,6 +57,7 @@ def metrics_from_report(report: dict) -> dict:
                 and s["type"] == "Temperature" and s["path"][-1].startswith("DIMM #")
             ],
         },
+        "network": report.get("network", {}),
         "hardware_status": report["hardware_sensors"]["status"],
         "hardware_error": report["hardware_sensors"]["error"],
     }
