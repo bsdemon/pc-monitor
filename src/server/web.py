@@ -65,11 +65,15 @@ def serve(host="127.0.0.1", port=8080, interval=1.0):
     store = MetricsStore()
     page = Path(__file__).with_name("templates").joinpath("dashboard.html").read_bytes()
 
+    preview = Path(__file__).parents[1].joinpath("esp32/design/preview.html").read_bytes()
+
     class Handler(BaseHTTPRequestHandler):
         def do_GET(self):
             path = urlsplit(self.path).path
             if path == "/":
                 self.respond(200, page, "text/html; charset=utf-8")
+            elif path == "/display-preview":
+                self.respond(200, preview, "text/html; charset=utf-8")
             elif path == "/api/metrics":
                 snapshot = store.read()
                 if snapshot is None:

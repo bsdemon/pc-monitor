@@ -116,3 +116,7 @@ For loopback-only access or a different port:
 ```
 
 The launcher targets Windows PowerShell 5.1 or newer. Its UAC and sensor behavior must be checked on Windows; they cannot be exercised in the Linux development environment.
+
+## ESP32 screen preview
+
+Open **http://localhost:8080/display-preview** to review the 800 × 480 screen design with live metrics, or explicitly simulated demo/stale states. Overview and Charts switch the home view; tapping CPU/GPU/RAM opens details with a Back button. Charts keep the last two minutes while the page is open. This is a browser mockup for the future LVGL firmware.

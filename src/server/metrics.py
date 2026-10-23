@@ -24,6 +24,14 @@ def metrics_from_report(report: dict) -> dict:
             "temperature_celsius": reading(cpu, "Temperature", "Core (Tctl/Tdie)"),
             "power_watts": reading(cpu, "Power", "Package"),
             "average_clock_mhz": reading(cpu, "Clock", "Cores (Average)"),
+            "logical_cores": report["cpu"]["logical_cores"],
+            "ccd_temperature_celsius": reading(cpu, "Temperature", "CCD1 (Tdie)"),
+            "core_voltage_volts": reading(cpu, "Voltage", "Core (SVI2 TFN)"),
+            "core_loads": [
+                {"name": s["path"][-1], "utilization_percent": s["value"]}
+                for s in sensors if s["path"][0] == cpu and s["type"] == "Load"
+                and s["path"][-1].startswith("CPU Core #")
+            ],
         },
         "gpu": {
             "name": gpu,
@@ -31,6 +39,9 @@ def metrics_from_report(report: dict) -> dict:
             "temperature_celsius": reading(gpu, "Temperature", "GPU Core"),
             "hot_spot_celsius": reading(gpu, "Temperature", "GPU Hot Spot"),
             "power_watts": reading(gpu, "Power", "GPU Package"),
+            "core_clock_mhz": reading(gpu, "Clock", "GPU Core"),
+            "memory_clock_mhz": reading(gpu, "Clock", "GPU Memory"),
+            "fan_rpm": reading(gpu, "Fan", "GPU Fan"),
             "vram_used_bytes": vram_bytes("GPU Memory Used"),
             "vram_total_bytes": vram_bytes("GPU Memory Total"),
         },
