@@ -3,7 +3,26 @@
 Python diagnostics for a Windows PC that will supply metrics to an ESP32 display.
 The Windows agent provides console diagnostics, a browser dashboard, and a shared HTTP metrics API. ESP32 firmware and setup instructions are in `src/esp32/`.
 
-## Setup on Windows
+## Setup
+
+1. Install [uv](https://docs.astral.sh/uv/getting-started/installation/) and PawnIO. In an administrator PowerShell window:
+
+   ```powershell
+   winget install PawnIO
+   ```
+
+2. From the project directory, install Python dependencies and start the Windows agent:
+
+   ```powershell
+   uv sync
+   .\start.cmd
+   ```
+
+   Accept the administrator prompt, then open **http://localhost:8080**. HardwareMonitor, pythonnet, and psutil are installed automatically; the standalone LibreHardwareMonitor app is unnecessary.
+
+3. For the display, install ESP-IDF v6.1 with ESP32-S31 support. Copy `src/esp32/.env.example` to `.env` in the same directory if it does not exist, then enter Wi-Fi credentials and the PC LAN IP. Connect the board's UART USB-C port and follow the short [build and flash instructions](src/esp32/README.md#build-on-windows). Allow TCP 8080 on the Windows Firewall private profile for ESP32 access.
+
+## Windows agent details
 
 Install [uv](https://docs.astral.sh/uv/getting-started/installation/), then open PowerShell as administrator in the project directory:
 
@@ -28,24 +47,14 @@ uv run pc-monitor diagnose --output diagnostics.json
 
 Reports contain the computer hostname and hardware names. Review them before sharing. Generated `diagnostics*.json` reports are ignored by Git.
 
-## Output and limitations
-
-The report includes a one-second CPU utilization sample, RAM in bytes, a UTC collection completion timestamp, and a hardware sensor inventory with identifiers, paths, hardware types, sensor types, units, and numeric values. Unavailable readings are `null`; sensor types without an explicit unit mapping have a `null` unit.
-
-The hardware provider reports `ok`, `empty`, or `unavailable` and provides an error when initialization or collection fails. `ok` means some sensors were enumerated, not that every expected metric is available. Baseline metrics remain available when the hardware library fails. Measurements are sampled sequentially rather than atomically.
-
-This diagnostic schema is not the future `/api/metrics` contract. Mappings are based on user-provided Windows readings for a Ryzen 7 5700X and Radeon RX 6700 XT, with PawnIO installed and an elevated terminal. The development environment cannot independently validate Windows hardware access. No sensor values or fan settings are modified.
-
 ## Source layout
 
 The source tree separates the Windows agent from the display firmware:
 
-- `src/server/`: Python sensor collection, console output, and future HTTP server.
+- `src/server/`: Python sensor collection, console output, HTTP server, and browser dashboard.
 - `src/esp32/`: ESP-IDF/LVGL display firmware, touch Wi-Fi settings, and browser design reference.
 
 The `pc-monitor` command remains unchanged. Its entry point is `src.server.cli:main`.
-
-See [PLAN.md](PLAN.md) for milestones and [AGENTS.md](AGENTS.md) for contributor instructions.
 
 See [Windows sensor access](docs/SENSOR_ACCESS.md) for upstream implementation findings and driver limitations.
 
