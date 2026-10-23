@@ -1,0 +1,21 @@
+[project]
+name = "pc-monitor"
+version = "0.1.0"
+description = "PC metrics diagnostics for a local ESP32 monitor"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "psutil>=7.2.2,<8",
+    "HardwareMonitor>=1.2.1,<2; sys_platform == 'win32'",
+]
+
+[project.scripts]
+pc-monitor = "src.cli:main"
+
+[build-system]
+requires = ["uv_build>=0.9,<0.10"]
+build-backend = "uv_build"
+
+[tool.uv.build-backend]
+module-name = "src"
+module-root = ""
