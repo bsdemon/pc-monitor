@@ -21,6 +21,8 @@ The Windows agent provides console diagnostics, a browser dashboard, and a share
    Accept the administrator prompt, then open **http://localhost:8080**. HardwareMonitor, pythonnet, and psutil are installed automatically; the standalone LibreHardwareMonitor app is unnecessary.
 
 3. For the display, install ESP-IDF v6.1 with ESP32-S31 support. Copy `src/esp32/.env.example` to `.env` in the same directory if it does not exist, then enter Wi-Fi credentials and the PC LAN IP. Connect the board's UART USB-C port and follow the short [build and flash instructions](src/esp32/README.md#build-on-windows). Allow TCP 8080 on the Windows Firewall private profile for ESP32 access.
+## Preview
+<img width="837" height="522" alt="image" src="https://github.com/user-attachments/assets/5c9ac9f1-134f-4b14-bf79-d7cadf9bb0b5" />
 
 ## Windows agent details
 
