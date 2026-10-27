@@ -24,6 +24,17 @@ The Windows agent provides console diagnostics, a browser dashboard, and a share
 ## Preview
 <img width="837" height="522" alt="image" src="https://github.com/user-attachments/assets/5c9ac9f1-134f-4b14-bf79-d7cadf9bb0b5" />
 
+<img width="840" height="517" alt="image" src="https://github.com/user-attachments/assets/3fc43b95-b3ae-4697-ab81-b5f02b3e0a0c" />
+
+<img width="832" height="526" alt="image" src="https://github.com/user-attachments/assets/7767d079-898f-4dd3-b515-fa2e4fe9bfdb" />
+
+<img width="842" height="517" alt="image" src="https://github.com/user-attachments/assets/4af088ca-4982-4689-968e-d5d0f41b4197" />
+
+<img width="846" height="530" alt="image" src="https://github.com/user-attachments/assets/0c30c0f1-3e0a-4b31-bd8f-30bcbc1e846f" />
+
+
+
+
 ## Windows agent details
 
 Install [uv](https://docs.astral.sh/uv/getting-started/installation/), then open PowerShell as administrator in the project directory:
